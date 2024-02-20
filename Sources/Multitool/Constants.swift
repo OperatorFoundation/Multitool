@@ -18,6 +18,12 @@ struct Constants
     
     struct Files 
     {
+        static let swiftExtension = ".swift"
+        static let clientConfigFile = "ClientConfig"
+        static let clientConfigSwiftFile = clientConfigFile + swiftExtension
+        static let serverConfigFile = "ServerConfig"
+        static let serverConfigSwiftFile = serverConfigFile + swiftExtension
+        
         struct Readme
         {
             static let name = "README"

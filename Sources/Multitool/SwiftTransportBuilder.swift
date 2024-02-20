@@ -12,7 +12,7 @@ import Gardener
 struct SwiftTransportBuilder
 {
     let swift: SwiftTool
-    let projectDirectory: String
+    let projectDirectory: URL
     let transportName: String
     
     init(projectDirectory: String, transportName: String) throws
@@ -23,18 +23,17 @@ struct SwiftTransportBuilder
         }
         
         self.swift = newSwift
-        self.projectDirectory = projectDirectory
+        self.projectDirectory = URL(fileURLWithPath: projectDirectory)
         self.transportName = transportName
     }
     
     func buildNewTransport() throws
     {
-        let projectDirectoryURL = URL(fileURLWithPath: projectDirectory)
-        try buildProjectStructure(projectDirectory: projectDirectoryURL)
-//        try addTransportFiles()
+        try buildProjectStructure(projectDirectory: projectDirectory)
+        try addTransportFiles()
 //        try updatePackageFile()
 //        try updateTests()
-        try addReadme(projectDirectory: projectDirectoryURL, transportName: transportName)
+        try addReadme(projectDirectory: projectDirectory, transportName: transportName)
     }
     
     /// Uses swift commands to create a new Swift Package library
@@ -53,7 +52,7 @@ struct SwiftTransportBuilder
         }
         
         // Create the basic swift package project
-        guard let createPackageResult = swift.initialize() else
+        guard let _ = swift.initialize() else
         {
             throw TransportBuilderError.projectCreationFailure
         }
@@ -63,7 +62,15 @@ struct SwiftTransportBuilder
     /// Adds the transport specific files to the project
     func addTransportFiles() throws
     {
-        throw TransportBuilderError.unimplemented
+        let transportFileName = transportName + Constants.Files.swiftExtension
+        addEmptySwiftFile(name: transportFileName)
+        
+        let clientConfigFileName = transportName + Constants.Files.clientConfigSwiftFile
+        addEmptySwiftFile(name: clientConfigFileName)
+        
+        let serverConfigFileName = transportName + Constants.Files.serverConfigSwiftFile
+        addEmptySwiftFile(name: serverConfigFileName)
+        
     }
     
     // TODO: Implement updatePackageFile
@@ -80,9 +87,8 @@ struct SwiftTransportBuilder
         throw TransportBuilderError.unimplemented
     }
     
-    // TODO: Implement addReadme
     // This is markdown and not swift specific
-    // We should consider moving this to a more general purpose location in the future
+    // TODO: We should consider moving this to a more general purpose location in the future
     func addReadme(projectDirectory: URL, transportName: String) throws
     {
         let titleLine = "# \(transportName)"
@@ -92,6 +98,22 @@ struct SwiftTransportBuilder
         
         FileManager.default.createFile(atPath: projectDirectory.appending(path: Constants.Files.Readme.name, directoryHint: .notDirectory).path, contents: contentString.data)
         
+    }
+    
+    /// Adds a swift file to the directory provided, or the Sources directory if none is provided
+    func addEmptySwiftFile(name: String, directory: String? = nil)
+    {
+        let headerString = """
+        //
+        // \(name)
+        //
+        // \(Date())
+        //
+        """
+        
+        let filePath = directory ?? projectDirectory.appending(path: Constants.Directories.sourcesWithSlashes + name, directoryHint: .isDirectory).path
+        
+        FileManager.default.createFile(atPath: filePath, contents: headerString.data)
     }
     
 }
