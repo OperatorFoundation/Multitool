@@ -26,24 +26,14 @@ extension CommandLine
         var name: String
 
         @Argument(help: "Destination directory path")
-        var output: String
+        var projectDirectory: String
 
         mutating public func run() throws
         {
-            let outputURL = URL(fileURLWithPath: output)
-            guard File.makeDirectory(url: outputURL) else
-            {
-                print("Creation of project directory failed")
-                return
-            }
-
-            guard let swift = Swift() else
-            {
-                print("")
-            }
-
-            swift?.cd(output)
+            let swiftBuilder = try SwiftTransportBuilder(projectDirectory: projectDirectory, transportName: name)
+            try swiftBuilder.buildNewTransport()
         }
+
     }
 }
 
@@ -53,3 +43,5 @@ extension CommandLine
     {
     }
 }
+
+CommandLine.main()
