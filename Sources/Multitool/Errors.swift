@@ -14,6 +14,7 @@ public enum TransportBuilderError: Error, CustomStringConvertible
     case projectDirectoryCreationFailure
     case directoryNavigation(directoryPath: String)
     case projectCreationFailure
+    case templateFileNotFound(filename: String)
     case unimplemented
     
     public var description: String
@@ -29,6 +30,8 @@ public enum TransportBuilderError: Error, CustomStringConvertible
                 return "Unable to navigate to a directory: \(directoryPath)"
             case .projectCreationFailure:
                 return "Failed to initialize a new Swift Package."
+            case.templateFileNotFound(filename: let filename):
+                return "Failed to find the template \(filename). The resulting file needed for this project could not be generated."
         }
     }
 }

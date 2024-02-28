@@ -34,6 +34,7 @@ struct SwiftTransportBuilder
 //        try updatePackageFile()
 //        try updateTests()
         try addReadme(projectDirectory: projectDirectory, transportName: transportName)
+        try buildTransportConfigFile()
     }
     
     /// Uses swift commands to create a new Swift Package library
@@ -114,6 +115,25 @@ struct SwiftTransportBuilder
         let filePath = directory ?? projectDirectory.appending(path: Constants.Directories.sourcesWithSlashes + name, directoryHint: .isDirectory).path
         
         FileManager.default.createFile(atPath: filePath, contents: headerString.data)
+    }
+    
+    func buildTransportConfigFile() throws
+    {
+        if let fileURL = Bundle.main.url(forResource: "NOMNIConfig", withExtension: nil)
+        {
+            // we found the file in our bundle!
+            print("NOMNIConfig template found at: \(fileURL.path)")
+            
+            if let fileContents = try? String(contentsOf: fileURL) 
+            {
+                // we loaded the file into a string!
+                print("NOMNI config template loaded.")
+            }
+        }
+        else
+        {
+            throw TransportBuilderError.templateFileNotFound(filename: "NOMNIConfig")
+        }
     }
     
 }
