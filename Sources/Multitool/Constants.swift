@@ -37,6 +37,8 @@ struct Constants
 enum Templates: String
 {
     case NOMNIConfig
+    case Package
+    case PackageWithExtension = "Package.swift"
 }
 
 enum Extensions: String

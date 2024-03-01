@@ -1,0 +1,33 @@
+// swift-tools-version: 5.8
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "NOMNI",
+    platforms: [
+        .macOS(.v13),
+        .iOS(.v15),
+    ],
+    products: [
+        .library(
+            name: "NOMNI",
+            targets: ["NOMNI"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Gardener", branch: "main")
+    ],
+    targets: [
+        .target(
+            name: "NOMNI",
+            dependencies: [
+            "ReplicantSwift",
+            "Gardener",
+            ]),
+        .testTarget(
+            name: "NOMNITests",
+            dependencies: ["NOMNI"]),
+    ],
+    swiftLanguageVersions: [.v5]
+)

@@ -30,7 +30,7 @@ let package = Package(
                 "Gardener",
                 "KeychainTypes",
             ],
-            resources: [.copy("Templates/NOMNIConfig.txt")]
+            resources: [.copy("Templates/NOMNIConfig.txt"), .copy("Templates/Package.txt")]
         ),
         .testTarget(
             name: "MultitoolTests",

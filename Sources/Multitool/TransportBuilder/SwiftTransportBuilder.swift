@@ -34,7 +34,7 @@ struct SwiftTransportBuilder
     {
         try buildProjectStructure(projectDirectory: projectDirectory)
         try addTransportFiles()
-//        try updatePackageFile()
+        try updatePackageFile()
 //        try updateTests()
         try addReadme(projectDirectory: projectDirectory, transportName: transportName)
     }
@@ -73,11 +73,12 @@ struct SwiftTransportBuilder
         
     }
     
-    // TODO: Implement updatePackageFile
     /// Updates the Package.swift file for the new transport project
     func updatePackageFile() throws
     {
-        throw TransportBuilderError.unimplemented
+        let packageContents = try buildPackageFile()
+        let packageURL = projectDirectory.appendingPathComponent(Templates.PackageWithExtension.rawValue, isDirectory: false)
+        FileManager.default.createFile(atPath: packageURL.path, contents: packageContents.data)
     }
     
     // TODO: Implement updateTests
@@ -116,28 +117,32 @@ struct SwiftTransportBuilder
         FileManager.default.createFile(atPath: filePath, contents: headerString.data)
     }
     
+    func buildPackageFile() throws -> String
+    {
+        guard let fileURL = Bundle.module.url(forResource: Templates.Package.rawValue, withExtension: Extensions.txt.rawValue) else
+        {
+            throw TransportBuilderError.templateFileNotFound(filename: Templates.Package.rawValue)
+        }
+        
+        print("Package file template found.")
+        
+        var fileContents = try String(contentsOf: fileURL)
+        fileContents = fileContents.replacingOccurrences(of: Constants.placeholderTransportName, with: transportName)
+        return fileContents
+    }
+    
     func buildConfigFile() throws -> String
     {
-        if let fileURL = Bundle.module.url(forResource: Templates.NOMNIConfig.rawValue, withExtension: Extensions.txt.rawValue)
-        {
-            // we found the file in our bundle!
-            print("NOMNIConfig template found at: \(fileURL.path)")
-            
-            guard var fileContents = try? String(contentsOf: fileURL) else
-            {
-                print("Failed to load the contents of \(fileURL.lastPathComponent)")
-                throw TransportBuilderError.templateFileInvalid(filename: Templates.NOMNIConfig.rawValue)
-            }
-            
-            
-            fileContents = fileContents.replacingOccurrences(of: Constants.placeholderTransportName, with: transportName)
-            print("NOMNI config template loaded: \n\(fileContents)")
-            return fileContents
-        }
-        else
+        guard let fileURL = Bundle.module.url(forResource: Templates.NOMNIConfig.rawValue, withExtension: Extensions.txt.rawValue) else
         {
             throw TransportBuilderError.templateFileNotFound(filename: Templates.NOMNIConfig.rawValue)
         }
+        
+        // we found the file in our bundle!
+        print("NOMNIConfig template found at: \(fileURL.path)")
+        var fileContents = try String(contentsOf: fileURL)
+        fileContents = fileContents.replacingOccurrences(of: Constants.placeholderTransportName, with: transportName)
+        return fileContents
     }
     
     func addConfigFile(filename: String) throws
