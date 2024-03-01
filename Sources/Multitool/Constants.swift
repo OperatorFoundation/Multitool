@@ -9,6 +9,8 @@ import Foundation
 
 struct Constants
 {
+    static let placeholderTransportName = "NOMNI"
+    
     struct Directories {
         static let sources = "Sources"
         static let sourcesWithSlashes = "/" + sources + "/"
@@ -16,9 +18,8 @@ struct Constants
     
     struct Files 
     {
-        static let swiftExtension = ".swift"
-        static let configFile = "Config"
-        static let configSwiftFile = configFile + swiftExtension
+        static let configFileName = "Config"
+        static let configSwiftFileName = configFileName + Extensions.dotSwift.rawValue
         
         struct Readme
         {
@@ -29,4 +30,19 @@ struct Constants
             
         }
     }
+    
+    
+}
+
+enum Templates: String
+{
+    case NOMNIConfig
+}
+
+enum Extensions: String
+{
+    case swift
+    case dotSwift = ".swift"
+    case txt
+    case dotTxt = ".txt"
 }

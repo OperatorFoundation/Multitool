@@ -11,8 +11,6 @@ import Gardener
 
 struct SwiftTransportBuilder
 {
-    let placeholderTransportName = "NOMNI"
-
     let swift: SwiftTool
     let projectDirectory: URL
     let sourcesDirectory: URL
@@ -67,10 +65,10 @@ struct SwiftTransportBuilder
     /// Adds the transport specific files to the project
     func addTransportFiles() throws
     {
-        let transportFileName = transportName + Constants.Files.swiftExtension
+        let transportFileName = transportName + Extensions.dotSwift.rawValue
         addEmptySwiftFile(name: transportFileName)
         
-        let configFileName = transportName + Constants.Files.configSwiftFile
+        let configFileName = transportName + Constants.Files.configSwiftFileName
         try addConfigFile(filename: configFileName)
         
     }
@@ -120,9 +118,7 @@ struct SwiftTransportBuilder
     
     func buildConfigFile() throws -> String
     {
-        let configTemplateName = "NOMNIConfig"
-        //        Bundle.module.resourceURL
-        if let fileURL = Bundle.module.url(forResource: configTemplateName, withExtension: "txt")
+        if let fileURL = Bundle.module.url(forResource: Templates.NOMNIConfig.rawValue, withExtension: Extensions.txt.rawValue)
         {
             // we found the file in our bundle!
             print("NOMNIConfig template found at: \(fileURL.path)")
@@ -130,17 +126,17 @@ struct SwiftTransportBuilder
             guard var fileContents = try? String(contentsOf: fileURL) else
             {
                 print("Failed to load the contents of \(fileURL.lastPathComponent)")
-                throw TransportBuilderError.templateFileInvalid(filename: configTemplateName)
+                throw TransportBuilderError.templateFileInvalid(filename: Templates.NOMNIConfig.rawValue)
             }
             
             
-            fileContents = fileContents.replacingOccurrences(of: placeholderTransportName, with: transportName)
+            fileContents = fileContents.replacingOccurrences(of: Constants.placeholderTransportName, with: transportName)
             print("NOMNI config template loaded: \n\(fileContents)")
             return fileContents
         }
         else
         {
-            throw TransportBuilderError.templateFileNotFound(filename: configTemplateName)
+            throw TransportBuilderError.templateFileNotFound(filename: Templates.NOMNIConfig.rawValue)
         }
     }
     
