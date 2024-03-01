@@ -11,9 +11,13 @@ import Gardener
 
 struct SwiftTransportBuilder
 {
+    let placeholderTransportName = "NOMNI"
+
     let swift: SwiftTool
     let projectDirectory: URL
+    let sourcesDirectory: URL
     let transportName: String
+    
     
     init(projectDirectory: String, transportName: String) throws
     {
@@ -23,8 +27,9 @@ struct SwiftTransportBuilder
         }
         
         self.swift = newSwift
-        self.projectDirectory = URL(fileURLWithPath: projectDirectory)
         self.transportName = transportName
+        self.projectDirectory = URL(fileURLWithPath: projectDirectory).appendingPathComponent(transportName, isDirectory: true)
+        self.sourcesDirectory = self.projectDirectory.appendingPathComponent("\(Constants.Directories.sources)/\(transportName)/", isDirectory: true)
     }
     
     func buildNewTransport() throws
@@ -34,7 +39,6 @@ struct SwiftTransportBuilder
 //        try updatePackageFile()
 //        try updateTests()
         try addReadme(projectDirectory: projectDirectory, transportName: transportName)
-        try buildTransportConfigFile()
     }
     
     /// Uses swift commands to create a new Swift Package library
@@ -66,11 +70,8 @@ struct SwiftTransportBuilder
         let transportFileName = transportName + Constants.Files.swiftExtension
         addEmptySwiftFile(name: transportFileName)
         
-        let clientConfigFileName = transportName + Constants.Files.clientConfigSwiftFile
-        addEmptySwiftFile(name: clientConfigFileName)
-        
-        let serverConfigFileName = transportName + Constants.Files.serverConfigSwiftFile
-        addEmptySwiftFile(name: serverConfigFileName)
+        let configFileName = transportName + Constants.Files.configSwiftFile
+        try addConfigFile(filename: configFileName)
         
     }
     
@@ -112,27 +113,44 @@ struct SwiftTransportBuilder
         //
         """
         
-        let filePath = directory ?? projectDirectory.appending(path: Constants.Directories.sourcesWithSlashes + name, directoryHint: .isDirectory).path
+        let filePath = directory ?? sourcesDirectory.appending(path: name, directoryHint: .isDirectory).path
         
         FileManager.default.createFile(atPath: filePath, contents: headerString.data)
     }
     
-    func buildTransportConfigFile() throws
+    func buildConfigFile() throws -> String
     {
-        if let fileURL = Bundle.main.url(forResource: "NOMNIConfig", withExtension: nil)
+        let configTemplateName = "NOMNIConfig"
+        //        Bundle.module.resourceURL
+        if let fileURL = Bundle.module.url(forResource: configTemplateName, withExtension: "txt")
         {
             // we found the file in our bundle!
             print("NOMNIConfig template found at: \(fileURL.path)")
             
-            if let fileContents = try? String(contentsOf: fileURL) 
+            guard var fileContents = try? String(contentsOf: fileURL) else
             {
-                // we loaded the file into a string!
-                print("NOMNI config template loaded.")
+                print("Failed to load the contents of \(fileURL.lastPathComponent)")
+                throw TransportBuilderError.templateFileInvalid(filename: configTemplateName)
             }
+            
+            
+            fileContents = fileContents.replacingOccurrences(of: placeholderTransportName, with: transportName)
+            print("NOMNI config template loaded: \n\(fileContents)")
+            return fileContents
         }
         else
         {
-            throw TransportBuilderError.templateFileNotFound(filename: "NOMNIConfig")
+            throw TransportBuilderError.templateFileNotFound(filename: configTemplateName)
+        }
+    }
+    
+    func addConfigFile(filename: String) throws
+    {
+        let fileContents = try buildConfigFile()
+        let filePath = sourcesDirectory.appendingPathComponent(filename, isDirectory: false).path
+        guard FileManager.default.createFile(atPath: filePath, contents: fileContents.data) else
+        {
+            throw TransportBuilderError.failedToSaveFile(filePath: sourcesDirectory.path)
         }
     }
     

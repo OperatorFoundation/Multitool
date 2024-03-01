@@ -15,6 +15,8 @@ public enum TransportBuilderError: Error, CustomStringConvertible
     case directoryNavigation(directoryPath: String)
     case projectCreationFailure
     case templateFileNotFound(filename: String)
+    case templateFileInvalid(filename: String)
+    case failedToSaveFile(filePath: String)
     case unimplemented
     
     public var description: String
@@ -31,7 +33,11 @@ public enum TransportBuilderError: Error, CustomStringConvertible
             case .projectCreationFailure:
                 return "Failed to initialize a new Swift Package."
             case.templateFileNotFound(filename: let filename):
-                return "Failed to find the template \(filename). The resulting file needed for this project could not be generated."
+                return "Failed to find the template \(filename)."
+            case.templateFileInvalid(filename: let filename):
+                return "Failed to load the contents of the template \(filename)."
+            case .failedToSaveFile(filePath: let filePath):
+                return "Failed to save a file to \(filePath)"
         }
     }
 }
