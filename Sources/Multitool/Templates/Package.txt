@@ -15,15 +15,21 @@ let package = Package(
             targets: ["NOMNI"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift", branch: "main"),
-        .package(url: "https://github.com/OperatorFoundation/Gardener", branch: "main")
+        .package(url: "https://github.com/apple/swift-log", from: "1.5.4"),
+        
+        .package(url: "https://github.com/OperatorFoundation/Antiphony", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Gardener", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/KeychainTypes", from: "1.0.1"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "main"),
     ],
     targets: [
         .target(
             name: "NOMNI",
             dependencies: [
-            "ReplicantSwift",
-            "Gardener",
+                "Antiphony",
+                "KeychainTypes",
+                "TransmissionAsync",
+                .product(name: "Logging", package: "swift-log"),
             ]),
         .testTarget(
             name: "NOMNITests",

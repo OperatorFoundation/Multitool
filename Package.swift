@@ -17,24 +17,37 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.5.4"),
         
+        .package(url: "https://github.com/OperatorFoundation/Antiphony", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Gardener", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/KeychainTypes", from: "1.0.1"),
+        .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "main"),
     ],
     targets: [
         .executableTarget(
             name: "Multitool",
             dependencies: [
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-
                 "Gardener",
-                "KeychainTypes",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
             resources: [.copy("Templates/NOMNIConfig.txt"), .copy("Templates/Package.txt")]
         ),
+        
+        .target(
+            name: "NOMNITransport",
+            dependencies: [
+                "Antiphony",
+                "KeychainTypes",
+                "TransmissionAsync",
+                .product(name: "Logging", package: "swift-log"),
+            ]),
+        
         .testTarget(
             name: "MultitoolTests",
             dependencies: ["Multitool"]),
+        
+            .testTarget(name: "NOMNITransportTests", dependencies: ["NOMNITransport"])
     ],
     swiftLanguageVersions: [.v5]
 )
