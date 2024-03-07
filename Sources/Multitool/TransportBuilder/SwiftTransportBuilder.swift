@@ -156,17 +156,24 @@ struct SwiftTransportBuilder
         }
     }
     
-    func addToneburstFile()
+    func addToneburstFile() throws
     {
+        guard let fileURL = Bundle.module.url(forResource: "Toneburst", withExtension: Extensions.txt.rawValue) else
+        {
+            throw TransportBuilderError.templateFileNotFound(filename: Templates.NOMNIConfig.rawValue)
+        }
         
+        // we found the file in our bundle!
+        print("Toneburst template found at: \(fileURL.path)")
+        var fileContents = try String(contentsOf: fileURL)
     }
     
     func addModes(called modeNames: [String]) throws
     {
         let context: [String : Any] = ["modes": modeNames, "toneburstName": "\(transportName)Tone"]
-        let loader = FileSystemLoader(bundle: [Bundle.module])
+        let loader = TemplateLoader()
         let environment = Environment(loader: loader)
-        let rendered = try environment.renderTemplate(name: "Toneburst.txt", context: context)
+        let rendered = try environment.renderTemplate(name: "Toneburst", context: context)
         
         print(rendered)
     }
