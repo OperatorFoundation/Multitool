@@ -3,11 +3,20 @@ import XCTest
 
 final class MultitoolTests: XCTestCase 
 {
+    let projectDirectory = FileManager.default.homeDirectoryForCurrentUser.appending(path: "CodeTesting", directoryHint: .isDirectory)
+    let newTransportName = "Mycellium"
+    
     func testBuildConfig() throws
     {
-        let swiftBuilder = try SwiftTransportBuilder(projectDirectory: "projectDirectory", transportName: "Mycellium")
+        let swiftBuilder = try SwiftTransportBuilder(projectDirectory: projectDirectory.path, transportName: newTransportName)
         
         let configContents = try swiftBuilder.buildConfigFile()
         print("Created a config file from a template: \n\(configContents)")
+    }
+    
+    func testaddModes() throws
+    {
+        let swiftBuilder = try SwiftTransportBuilder(projectDirectory: projectDirectory.path, transportName: newTransportName)
+        try swiftBuilder.addModes(called: ["POP3Server, POP3Client"])
     }
 }

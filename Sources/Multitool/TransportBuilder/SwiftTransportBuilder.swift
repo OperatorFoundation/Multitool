@@ -8,6 +8,7 @@
 import Foundation
 
 import Gardener
+import Stencil
 
 struct SwiftTransportBuilder
 {
@@ -153,6 +154,26 @@ struct SwiftTransportBuilder
         {
             throw TransportBuilderError.failedToSaveFile(filePath: sourcesDirectory.path)
         }
+    }
+    
+    func addToneburstFile()
+    {
+        
+    }
+    
+    func addModes(called modeNames: [String]) throws
+    {
+        let context: [String : Any] = ["modes": modeNames, "toneburstName": "\(transportName)Tone"]
+        let loader = FileSystemLoader(bundle: [Bundle.module])
+        let environment = Environment(loader: loader)
+        let rendered = try environment.renderTemplate(name: "Toneburst.txt", context: context)
+        
+        print(rendered)
+    }
+    
+    func addModeFunctions() throws
+    {
+        
     }
     
 }
