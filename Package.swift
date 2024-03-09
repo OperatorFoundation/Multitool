@@ -23,8 +23,10 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/Antiphony", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Gardener", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Ghostwriter", branch: "main"),
-        .package(url: "https://github.com/OperatorFoundation/KeychainTypes", from: "1.0.1"),
+        .package(url: "https://github.com/OperatorFoundation/KeychainTypes", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/OmniLanguage", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/ReplicantSwift", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Time", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "main"),
     ],
     targets: [
@@ -32,10 +34,11 @@ let package = Package(
             name: "Multitool",
             dependencies: [
                 "Gardener",
+                "Ghostwriter",
                 "Stencil",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
-            resources: [.copy("Templates/NOMNIConfig.txt"), .copy("Templates/Package.txt")]
+            resources: [.copy("Templates/NOMNIConfig.txt"), .copy("Templates/Package.txt"), .copy("Templates/Toneburst.txt")]
         ),
         
         .target(
@@ -49,11 +52,13 @@ let package = Package(
                 .product(name: "Logging", package: "swift-log"),
             ]),
         
-        .testTarget(
-            name: "MultitoolTests",
-            dependencies: ["Multitool"]),
-        
-            .testTarget(name: "NOMNITransportTests", dependencies: ["NOMNITransport"])
+        .testTarget(name: "MultitoolTests",dependencies: [
+            "Multitool",
+            "OmniLanguage",
+            "Time",
+            .product(name: "OmniCompiler", package: "OmniLanguage")
+        ]),
+        .testTarget(name: "NOMNITransportTests", dependencies: ["NOMNITransport"])
     ],
     swiftLanguageVersions: [.v5]
 )

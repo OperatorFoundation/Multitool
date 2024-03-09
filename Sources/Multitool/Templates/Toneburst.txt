@@ -55,7 +55,7 @@ public struct {{toneburstName}}InstanceAsync
         switch mode
         {
             case .NOMNImode:
-            try await handleNOMNImode()
+                try await handleNOMNImode()
         }
     }
 

@@ -168,19 +168,14 @@ struct SwiftTransportBuilder
         var fileContents = try String(contentsOf: fileURL)
     }
     
-    func addModes(called modeNames: [String]) throws
+    func add(modes: [String : String]) throws
     {
-        let context: [String : Any] = ["modes": modeNames, "toneburstName": "\(transportName)Tone"]
+        let context: [String : Any] = ["modes": modes, "toneburstName": "\(transportName)Tone"]
         let loader = TemplateLoader()
         let environment = Environment(loader: loader)
         let rendered = try environment.renderTemplate(name: "Toneburst", context: context)
         
         print(rendered)
-    }
-    
-    func addModeFunctions() throws
-    {
-        
     }
     
 }
