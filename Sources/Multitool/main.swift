@@ -27,11 +27,22 @@ extension CommandLine
 
         @Argument(help: "Destination directory path")
         var projectDirectory: String
+        
+        @Option(name: .customLong("toneburst"), help: "The location of the pre-rendered Toneburst file")
+        var toneburstPath: String
 
         mutating public func run() throws
         {
             let swiftBuilder = try SwiftTransportBuilder(projectDirectory: projectDirectory, transportName: name)
-            try swiftBuilder.buildNewTransport()
+            
+            guard FileManager.default.fileExists(atPath: toneburstPath) else
+            {
+                throw TransportBuilderError.failedToFindFile(filePath: toneburstPath)
+            }
+            
+            let toneburstURL = URL(fileURLWithPath: toneburstPath, isDirectory: false)
+            
+            try swiftBuilder.buildNewTransport(toneburstFile: toneburstURL)
         }
 
     }

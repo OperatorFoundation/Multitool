@@ -17,6 +17,7 @@ public enum TransportBuilderError: Error, CustomStringConvertible
     case templateFileNotFound(filename: String)
     case templateFileInvalid(filename: String)
     case failedToSaveFile(filePath: String)
+    case failedToFindFile(filePath: String)
     case unimplemented
     
     public var description: String
@@ -38,6 +39,8 @@ public enum TransportBuilderError: Error, CustomStringConvertible
                 return "Failed to load the contents of the template \(filename)."
             case .failedToSaveFile(filePath: let filePath):
                 return "Failed to save a file to \(filePath)"
+            case .failedToFindFile(filePath: let filePath):
+                return "Failed to find a file at \(filePath)"
         }
     }
 }

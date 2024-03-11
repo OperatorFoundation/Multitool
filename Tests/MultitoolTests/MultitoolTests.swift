@@ -41,12 +41,17 @@ final class MultitoolTests: XCTestCase
         print("Toneburst template found at: \(fileURL.path)")
     }
     
-    func testAddModes() throws
+    func testCreateModeFile() throws
     {
         let swiftBuilder = try SwiftTransportBuilder(projectDirectory: projectDirectory.path, transportName: newTransportName)
         let pop3ServerFunction = try createPOP3ServerFunction()
         let pop3ClientFunction = try createPOP3ClientFunction()
-        try swiftBuilder.add(modes: ["POP3Server": pop3ServerFunction, "POP3Client": pop3ClientFunction])
+        let pop3ServerMode = ToneBurstMode(name: "POP3Server", function: pop3ServerFunction)
+        let pop3ClientMode = ToneBurstMode(name: "POP3Client", function: pop3ClientFunction)
+        let newToneburst = ToneBurstTemplate(name: "Omnitone", modes: [pop3ClientMode, pop3ServerMode])
+        
+        let newFilePath = try swiftBuilder.add(toneburst: newToneburst, saveDirectory: FileManager.default.homeDirectoryForCurrentUser)
+        print("Saved a new transport file to: \(newFilePath)")
     }
     
     // An example of using OmniLanguage to create the code for a mode function
@@ -141,7 +146,7 @@ final class MultitoolTests: XCTestCase
         print(chain.description)
 
         let compiler = SwiftOmniCompiler()
-        let result = try compiler.compile("POP3Server", chain)
+        let result = try compiler.compile("POP3Client", chain)
 
         return result.string
     }

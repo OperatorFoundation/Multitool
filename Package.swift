@@ -23,9 +23,7 @@ let package = Package(
         .package(url: "https://github.com/OperatorFoundation/Antiphony", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Gardener", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Ghostwriter", branch: "main"),
-        .package(url: "https://github.com/OperatorFoundation/KeychainTypes", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/OmniLanguage", branch: "main"),
-        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Time", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "main"),
     ],
@@ -41,24 +39,12 @@ let package = Package(
             resources: [.copy("Templates/NOMNIConfig.txt"), .copy("Templates/Package.txt"), .copy("Templates/Toneburst.txt")]
         ),
         
-        .target(
-            name: "NOMNITransport",
-            dependencies: [
-                "Antiphony",
-                "Ghostwriter",
-                "KeychainTypes",
-                "ReplicantSwift",
-                "TransmissionAsync",
-                .product(name: "Logging", package: "swift-log"),
-            ]),
-        
         .testTarget(name: "MultitoolTests",dependencies: [
             "Multitool",
             "OmniLanguage",
             "Time",
             .product(name: "OmniCompiler", package: "OmniLanguage")
         ]),
-        .testTarget(name: "NOMNITransportTests", dependencies: ["NOMNITransport"])
     ],
     swiftLanguageVersions: [.v5]
 )

@@ -1,5 +1,5 @@
 //
-//  {{toneburstName}}.swift
+//  {{toneburst.name}}.swift
 //
 //
 //  Created by Mafalda on 3/5/24.
@@ -13,38 +13,37 @@ import Ghostwriter
 import ReplicantSwift
 import TransmissionAsync
 
-public enum {{toneburstName}}Mode: String, Codable
+public enum {{toneburst.name}}Mode: String, Codable
 {
-    {% for mode in modes %}
-    case {{mode}}
+    {% for mode in toneburst.modes %}
+    case {{mode.name}}
     {% endfor %}
 }
 
-public class {{toneburstName}}Async: ToneBurstAsync, Codable
+public class {{toneburst.name}}: ToneBurstAsync, Codable
 {
-    public var type: ReplicantSwift.ToneBurstType
+    public var type: ReplicantSwift.ToneBurstType = .starburst
     
-    let mode: {{toneburstName}}Mode
+    let mode: {{toneburst.name}}Mode
 
-    public init(_ mode: {{toneburstName}}Mode)
+    public init(_ mode: {{toneburst.name}}Mode)
     {
         self.mode = mode
-        self.type = .starburst
     }
 
     public func perform(connection: TransmissionAsync.AsyncConnection) async throws
     {
-        let instance = {{toneburstName}}InstanceAsync(self.mode, connection)
+        let instance = {{toneburst.name}}Instance(self.mode, connection)
         try await instance.perform()
     }
 }
 
-public struct {{toneburstName}}InstanceAsync
+public struct {{toneburst.name}}Instance
 {
     let connection: TransmissionAsync.AsyncConnection
-    let mode: {{toneburstName}}Mode
+    let mode: {{toneburst.name}}Mode
 
-    public init(_ mode: {{toneburstName}}Mode, _ connection: TransmissionAsync.AsyncConnection)
+    public init(_ mode: {{toneburst.name}}Mode, _ connection: TransmissionAsync.AsyncConnection)
     {
         self.mode = mode
         self.connection = connection
@@ -54,19 +53,18 @@ public struct {{toneburstName}}InstanceAsync
     {
         switch mode
         {
-            case .NOMNImode:
-                try await handleNOMNImode()
+            {% for mode in toneburst.modes %}
+            case .{{mode.name}}:
+                try await handle{{mode.name}}()
+            {% endfor %}
         }
     }
-
-    func handleNOMNImode() async throws
-    {
-
-    }
-
+{% for mode in toneburst.modes %}
+{{mode.function}}
+{% endfor %}
 }
 
-public enum {{toneburstName}}Error: Error
+public enum {{toneburst.name}}Error: Error
 {
     case timeout
     case connectionClosed

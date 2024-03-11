@@ -17,7 +17,6 @@ struct SwiftTransportBuilder
     let sourcesDirectory: URL
     let transportName: String
     
-    
     init(projectDirectory: String, transportName: String) throws
     {
         guard let newSwift: SwiftTool = SwiftTool() else
@@ -31,20 +30,24 @@ struct SwiftTransportBuilder
         self.sourcesDirectory = self.projectDirectory.appendingPathComponent("\(Constants.Directories.sources)/\(transportName)/", isDirectory: true)
     }
     
-    func buildNewTransport() throws
+    func buildNewTransport(toneburstFile: URL) throws
     {
         try buildProjectStructure(projectDirectory: projectDirectory)
-        try addTransportFiles()
-        try updatePackageFile()
-//        try updateTests()
-        try addReadme(projectDirectory: projectDirectory, transportName: transportName)
+        try addStandardFiles()
+        try addTransportFiles(toneburstFile: toneburstFile)
+    }
+    
+    func buildNewTransport(toneburst: ToneBurstTemplate) throws
+    {
+        try buildProjectStructure(projectDirectory: projectDirectory)
+        try addStandardFiles()
+        try add(toneburst: toneburst)
     }
     
     /// Uses swift commands to create a new Swift Package library
     func buildProjectStructure(projectDirectory: URL) throws
     {
         // Make the project directory
-        
         guard File.makeDirectory(url: projectDirectory) else
         {
             throw TransportBuilderError.projectDirectoryCreationFailure
@@ -62,9 +65,15 @@ struct SwiftTransportBuilder
         }
     }
     
-    // TODO: Implement addTransportFiles
+    func addStandardFiles() throws
+    {
+        try updatePackageFile()
+//        try updateTests()
+        try addReadme(projectDirectory: projectDirectory, transportName: transportName)
+    }
+    
     /// Adds the transport specific files to the project
-    func addTransportFiles() throws
+    func addTransportFiles(toneburstFile: URL) throws
     {
         let transportFileName = transportName + Extensions.dotSwift.rawValue
         addEmptySwiftFile(name: transportFileName)
@@ -72,6 +81,19 @@ struct SwiftTransportBuilder
         let configFileName = transportName + Constants.Files.configSwiftFileName
         try addConfigFile(filename: configFileName)
         
+        try add(toneburstFile: toneburstFile)
+    }
+    
+    /// Adds the transport specific files to the project
+    func addTransportFiles(toneburst: ToneBurstTemplate) throws
+    {
+        let transportFileName = transportName + Extensions.dotSwift.rawValue
+        addEmptySwiftFile(name: transportFileName)
+        
+        let configFileName = transportName + Constants.Files.configSwiftFileName
+        try addConfigFile(filename: configFileName)
+        
+        try add(toneburst: toneburst)
     }
     
     /// Updates the Package.swift file for the new transport project
@@ -152,31 +174,47 @@ struct SwiftTransportBuilder
         let filePath = sourcesDirectory.appendingPathComponent(filename, isDirectory: false).path
         guard FileManager.default.createFile(atPath: filePath, contents: fileContents.data) else
         {
-            throw TransportBuilderError.failedToSaveFile(filePath: sourcesDirectory.path)
+            throw TransportBuilderError.failedToSaveFile(filePath: filePath)
         }
     }
     
-    func addToneburstFile() throws
+    func add(toneburstFile fileURL: URL) throws
     {
-        guard let fileURL = Bundle.module.url(forResource: "Toneburst", withExtension: Extensions.txt.rawValue) else
+        guard let fileContents = FileManager.default.contents(atPath: fileURL.path) else
         {
-            throw TransportBuilderError.templateFileNotFound(filename: Templates.NOMNIConfig.rawValue)
+            throw TransportBuilderError.failedToFindFile(filePath: fileURL.path)
         }
         
-        // we found the file in our bundle!
-        print("Toneburst template found at: \(fileURL.path)")
-        var fileContents = try String(contentsOf: fileURL)
+        let savePath = sourcesDirectory.appendingPathComponent(fileURL.lastPathComponent, isDirectory: false).path
+        guard FileManager.default.createFile(atPath: savePath, contents: fileContents.data) else
+        {
+            throw TransportBuilderError.failedToSaveFile(filePath: savePath)
+        }
     }
     
-    func add(modes: [String : String]) throws
+    func add(toneburst: ToneBurstTemplate, saveDirectory: URL? = nil) throws -> String
     {
-        let context: [String : Any] = ["modes": modes, "toneburstName": "\(transportName)Tone"]
-        let loader = TemplateLoader()
-        let environment = Environment(loader: loader)
-        let rendered = try environment.renderTemplate(name: "Toneburst", context: context)
+        let rendered = try ToneBurstTemplate.create(toneburst: toneburst)
+        let savePath: String
         
-        print(rendered)
+        if let userURL = saveDirectory
+        {
+            savePath = userURL.appendingPathComponent(toneburst.name + Extensions.dotSwift.rawValue, isDirectory: false).path
+        }
+        else
+        {
+            savePath = sourcesDirectory.appendingPathComponent(toneburst.name + Extensions.dotSwift.rawValue, isDirectory: false).path
+        }
+        
+        guard FileManager.default.createFile(atPath: savePath, contents: rendered.data) else
+        {
+            throw TransportBuilderError.failedToSaveFile(filePath: savePath)
+        }
+        
+        return savePath
     }
+    
+    
     
 }
 

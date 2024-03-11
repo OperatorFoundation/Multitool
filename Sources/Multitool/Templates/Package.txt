@@ -19,7 +19,8 @@ let package = Package(
         
         .package(url: "https://github.com/OperatorFoundation/Antiphony", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Gardener", branch: "main"),
-        .package(url: "https://github.com/OperatorFoundation/KeychainTypes", from: "1.0.1"),
+        .package(url: "https://github.com/OperatorFoundation/KeychainTypes", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/ReplicantSwift", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/TransmissionAsync", branch: "main"),
     ],
     targets: [
@@ -28,6 +29,7 @@ let package = Package(
             dependencies: [
                 "Antiphony",
                 "KeychainTypes",
+                "ReplicantSwift",
                 "TransmissionAsync",
                 .product(name: "Logging", package: "swift-log"),
             ]),
