@@ -18,7 +18,7 @@ class TemplateLoader: Loader
             throw TemplateDoesNotExist(templateNames: [name], loader: self)
         }
         
-        var fileContents = try String(contentsOf: fileURL)
+        let fileContents = try String(contentsOf: fileURL)
         return Template(templateString: fileContents, environment: environment)
     }
     
