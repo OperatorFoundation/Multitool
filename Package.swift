@@ -37,6 +37,7 @@ let package = Package(
             resources: [
                 .copy("Templates/NOMNI.txt"),
                 .copy("Templates/NOMNIConfig.txt"),
+                .copy("Templates/NOMNIController.txt"),
                 .copy("Templates/NOMNIError.txt"),
                 .copy("Templates/Package.txt"),
                 .copy("Templates/Toneburst.txt")]

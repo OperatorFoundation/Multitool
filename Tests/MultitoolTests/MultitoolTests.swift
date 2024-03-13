@@ -15,7 +15,7 @@ final class MultitoolTests: XCTestCase
     
     func testBuildConfig() throws
     {
-        let swiftBuilder = try SwiftTransportBuilder(projectDirectory: projectDirectory.path, transportName: newTransportName)
+        let swiftBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName)
         let configContents = try swiftBuilder.buildConfigFile()
         print("Created a config file from a template: \n\(configContents)")
     }
@@ -43,7 +43,7 @@ final class MultitoolTests: XCTestCase
     
     func testCreateModeFile() throws
     {
-        let swiftBuilder = try SwiftTransportBuilder(projectDirectory: projectDirectory.path, transportName: newTransportName)
+        let swiftBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName)
         let pop3ServerFunction = try createPOP3ServerFunction()
         let pop3ClientFunction = try createPOP3ClientFunction()
         let pop3ServerMode = ToneBurstMode(name: "POP3Server", function: pop3ServerFunction)

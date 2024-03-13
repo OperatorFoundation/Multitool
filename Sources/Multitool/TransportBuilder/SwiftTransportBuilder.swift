@@ -13,11 +13,12 @@ import Stencil
 struct SwiftTransportBuilder
 {
     let swift: SwiftTool
+    let saveDirectory: URL
     let projectDirectory: URL
     let sourcesDirectory: URL
     let transportName: String
     
-    init(projectDirectory: String, transportName: String) throws
+    init(saveDirectory: String, transportName: String) throws
     {
         guard let newSwift: SwiftTool = SwiftTool() else
         {
@@ -26,7 +27,8 @@ struct SwiftTransportBuilder
         
         self.swift = newSwift
         self.transportName = transportName
-        self.projectDirectory = URL(fileURLWithPath: projectDirectory).appendingPathComponent(transportName, isDirectory: true)
+        self.saveDirectory = URL(fileURLWithPath: saveDirectory)
+        self.projectDirectory = URL(fileURLWithPath: saveDirectory).appendingPathComponent(transportName, isDirectory: true)
         self.sourcesDirectory = self.projectDirectory.appendingPathComponent("\(Constants.Directories.sources)/\(transportName)/", isDirectory: true)
     }
     
@@ -34,14 +36,14 @@ struct SwiftTransportBuilder
     {
         try buildProjectStructure(projectDirectory: projectDirectory)
         try addStandardFiles()
-        try addTransportFiles(toneburstFile: toneburstFile)
+        try add(toneburstFile: toneburstFile)
     }
     
     func buildNewTransport(toneburst: ToneBurstTemplate) throws
     {
         try buildProjectStructure(projectDirectory: projectDirectory)
         try addStandardFiles()
-        try addTransportFiles(toneburst: toneburst)
+        let _ = try add(toneburst: toneburst)
     }
     
     /// Uses swift commands to create a new Swift Package library
@@ -67,52 +69,36 @@ struct SwiftTransportBuilder
     
     func addStandardFiles() throws
     {
-        try updatePackageFile()
-//        try updateTests()
+        try addPackageFile()
+
         try addReadme(projectDirectory: projectDirectory, transportName: transportName)
         
-        let configFileName = transportName + Constants.Files.configSwiftFileName
-        try addConfigFile(filename: configFileName)
+        let configFilename = transportName + Constants.Files.configSwiftFilename
+        try addConfigFile(filename: configFilename)
         
-        let errorFileName = transportName + Constants.Files.errorSwiftFileName
-        try addErrorsFile(filename: errorFileName)
-    }
-    
-    /// Adds the transport specific files to the project
-    func addTransportFiles(toneburstFile: URL) throws
-    {
-        let transportFileName = transportName + Extensions.dotSwift.rawValue
-        try addTransportFile(filename: transportFileName)
-                
-        try add(toneburstFile: toneburstFile)
-    }
-    
-    /// Adds the transport specific files to the project
-    func addTransportFiles(toneburst: ToneBurstTemplate) throws
-    {
-        let transportFileName = transportName + Extensions.dotSwift.rawValue
-        try addTransportFile(filename: transportFileName)
+        let errorFilename = transportName + Constants.Files.errorSwiftFilename
+        try addErrorsFile(filename: errorFilename)
         
-        let _ = try add(toneburst: toneburst)
+        let transportFilename = transportName + Extensions.dotSwift.rawValue
+        try addTransportFile(filename: transportFilename)
+        
+        let dispatcherFilename = transportName + Constants.Files.dispatcherSwiftFilename
+        try addDispatcherFile(filename: dispatcherFilename)
     }
-    
-    /// Updates the Package.swift file for the new transport project
-    func updatePackageFile() throws
-    {
-        let packageContents = try buildPackageFile()
-        let packageURL = projectDirectory.appendingPathComponent(Templates.PackageWithExtension.rawValue, isDirectory: false)
-        FileManager.default.createFile(atPath: packageURL.path, contents: packageContents.data)
-    }
-    
+
     // TODO: Implement updateTests
     /// Updates the swift test file to have test functions for the code generated here
-    func updateTests() throws
+    func addTestFile() throws
     {
         throw TransportBuilderError.unimplemented
     }
     
+    func buildTestFile() -> String
+    {
+        return ""
+    }
+    
     // This is markdown and not swift specific
-    // TODO: We should consider moving this to a more general purpose location in the future
     func addReadme(projectDirectory: URL, transportName: String) throws
     {
         let titleLine = "# \(transportName)"
@@ -121,35 +107,29 @@ struct SwiftTransportBuilder
         let contentString: String = contents.joined(separator: "\n\n")
         
         FileManager.default.createFile(atPath: projectDirectory.appending(path: Constants.Files.Readme.name, directoryHint: .notDirectory).path, contents: contentString.data)
+        print("✒︎ \(transportName) README file saved.")
     }
     
-    /// Adds a swift file to the directory provided, or the Sources directory if none is provided
-    func addEmptySwiftFile(name: String, directory: String? = nil)
+    func addPackageFile() throws
     {
-        let headerString = """
-        //
-        // \(name)
-        //
-        // \(Date())
-        //
-        """
-        
-        let filePath = directory ?? sourcesDirectory.appending(path: name, directoryHint: .isDirectory).path
-        
-        FileManager.default.createFile(atPath: filePath, contents: headerString.data)
+        let packageContents = try buildPackageFile()
+        let packageURL = projectDirectory.appendingPathComponent(Templates.PackageWithExtension.rawValue, isDirectory: false)
+        FileManager.default.createFile(atPath: packageURL.path, contents: packageContents.data)
+        print("✒︎ \(transportName) Package.swift file saved.")
     }
     
     func buildPackageFile() throws -> String
     {
+        // Try to find the template file in our bundle.
         guard let fileURL = Bundle.module.url(forResource: Templates.Package.rawValue, withExtension: Extensions.txt.rawValue) else
         {
             throw TransportBuilderError.templateFileNotFound(filename: Templates.Package.rawValue)
         }
         
-        print("Package file template found.")
-        
+        // We found the file, update the contents.
         var fileContents = try String(contentsOf: fileURL)
         fileContents = fileContents.replacingOccurrences(of: Constants.placeholderTransportName, with: transportName)
+        print("✒︎ \(transportName) Package.swift file created.")
         return fileContents
     }
     
@@ -161,19 +141,21 @@ struct SwiftTransportBuilder
         {
             throw TransportBuilderError.failedToSaveFile(filePath: filePath)
         }
+        print("✒︎ \(transportName) config file saved.")
     }
     
     func buildConfigFile() throws -> String
     {
+        // Try to find the template file in our bundle.
         guard let fileURL = Bundle.module.url(forResource: Templates.NOMNIConfig.rawValue, withExtension: Extensions.txt.rawValue) else
         {
             throw TransportBuilderError.templateFileNotFound(filename: Templates.NOMNIConfig.rawValue)
         }
         
-        // we found the file in our bundle!
-        print("NOMNIConfig template found at: \(fileURL.path)")
+        // We found the file, update the contents.
         var fileContents = try String(contentsOf: fileURL)
         fileContents = fileContents.replacingOccurrences(of: Constants.placeholderTransportName, with: transportName)
+        print("✒︎ \(transportName) config file created.")
         return fileContents
     }
     
@@ -185,18 +167,21 @@ struct SwiftTransportBuilder
         {
             throw TransportBuilderError.failedToSaveFile(filePath: filePath)
         }
+        print("✒︎ \(transportName) file saved.")
     }
     
     func buildTransportFile() throws -> String
     {
+        // Try to find the template file in our bundle.
         guard let fileURL = Bundle.module.url(forResource: Templates.NOMNI.rawValue, withExtension: Extensions.txt.rawValue) else
         {
             throw TransportBuilderError.templateFileNotFound(filename: Templates.NOMNI.rawValue)
         }
         
-        // we found the file in our bundle!
+        // We found the file, update the contents.
         var fileContents = try String(contentsOf: fileURL)
         fileContents = fileContents.replacingOccurrences(of: Constants.placeholderTransportName, with: transportName)
+        print("✒︎ \(transportName) file created.")
         return fileContents
     }
     
@@ -208,18 +193,49 @@ struct SwiftTransportBuilder
         {
             throw TransportBuilderError.failedToSaveFile(filePath: filePath)
         }
+        
+        print("✒︎ \(transportName) error file saved.")
     }
     
     func buildErrorsFile() throws -> String
     {
+        // Try to find the template file in our bundle.
         guard let fileURL = Bundle.module.url(forResource: Templates.NOMNIError.rawValue, withExtension: Extensions.txt.rawValue) else
         {
             throw TransportBuilderError.templateFileNotFound(filename: Templates.NOMNI.rawValue)
         }
         
-        // we found the file in our bundle!
+        // We found the file, update the contents.
         var fileContents = try String(contentsOf: fileURL)
         fileContents = fileContents.replacingOccurrences(of: Constants.placeholderTransportName, with: transportName)
+        print("✒︎ \(transportName) error file created.")
+        return fileContents
+    }
+    
+    func addDispatcherFile(filename: String) throws
+    {
+        let fileContents = try buildDispatcherFile()
+        let filePath = saveDirectory.appendingPathComponent(filename, isDirectory: false).path
+        guard FileManager.default.createFile(atPath: filePath, contents: fileContents.data) else
+        {
+            throw TransportBuilderError.failedToSaveFile(filePath: filePath)
+        }
+        
+        print("✒︎ \(transportName) Dispatcher file saved.")
+    }
+    
+    func buildDispatcherFile() throws -> String
+    {
+        // Try to find the template file in our bundle
+        guard let fileURL = Bundle.module.url(forResource: Templates.NOMNIController.rawValue, withExtension: Extensions.txt.rawValue) else
+        {
+            throw TransportBuilderError.templateFileNotFound(filename: Templates.NOMNIController.rawValue)
+        }
+        
+        // We found the file, update the contents.
+        var fileContents = try String(contentsOf: fileURL)
+        fileContents = fileContents.replacingOccurrences(of: Constants.placeholderTransportName, with: transportName)
+        print("✒︎ \(transportName) Dispatcher file created.")
         return fileContents
     }
     
@@ -235,6 +251,7 @@ struct SwiftTransportBuilder
         {
             throw TransportBuilderError.failedToSaveFile(filePath: savePath)
         }
+        print("✒︎ \(transportName) toneburst file saved.")
     }
     
     func add(toneburst: ToneBurstTemplate, saveDirectory: URL? = nil) throws -> String
@@ -256,7 +273,24 @@ struct SwiftTransportBuilder
             throw TransportBuilderError.failedToSaveFile(filePath: savePath)
         }
         
+        print("✒︎ \(transportName) toneburst file saved.")
         return savePath
+    }
+    
+    /// Adds a swift file to the directory provided, or the Sources directory if none is provided
+    func addEmptySwiftFile(name: String, directory: String? = nil)
+    {
+        let headerString = """
+        //
+        // \(name)
+        //
+        // \(Date())
+        //
+        """
+        
+        let filePath = directory ?? sourcesDirectory.appending(path: name, directoryHint: .isDirectory).path
+        
+        FileManager.default.createFile(atPath: filePath, contents: headerString.data)
     }
 }
 

@@ -18,10 +18,12 @@ struct Constants
     
     struct Files 
     {
-        static let configFileName = "Config"
-        static let configSwiftFileName = configFileName + Extensions.dotSwift.rawValue
-        static let errorFileName = "Error"
-        static let errorSwiftFileName = errorFileName + Extensions.dotSwift.rawValue
+        static let configFilename = "Config"
+        static let configSwiftFilename = configFilename + Extensions.dotSwift.rawValue
+        static let errorFilename = "Error"
+        static let errorSwiftFilename = errorFilename + Extensions.dotSwift.rawValue
+        static let dispatcherFilename = "Controller"
+        static let dispatcherSwiftFilename = dispatcherFilename + Extensions.dotSwift.rawValue
         
         struct Readme
         {
@@ -40,6 +42,7 @@ enum Templates: String
 {
     case NOMNI
     case NOMNIConfig
+    case NOMNIController
     case NOMNIError
     case Package
     case PackageWithExtension = "Package.swift"
