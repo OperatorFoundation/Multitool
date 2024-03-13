@@ -20,13 +20,13 @@ struct NOMNIController
     
     func runServer() throws
     {
-        guard let serverConfig = NOMNIConfig.ServerConfig(withConfigAtPath: configPath) else
+        guard let serverConfig = NOMNIConfig.ServerConfig(path: configPath) else
         {
             appLog.error("Failed to launch a NOMNI Server, we were unable to parse the config at the provided path.")
             return
         }
                         
-        let server = NOMNI(logger: appLog)
+        let server = NOMNI(replicant: <#ReplicantAsync#>, logger: appLog)
         let listener = try server.listen(config: serverConfig)
         let routingController = AsyncRoutingController()
                

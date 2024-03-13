@@ -15,9 +15,9 @@ public class NOMNI
     let replicant: ReplicantAsync
     let logger: Logger
     
-    public init(replicant: ReplicantAsync, logger: Logger)
+    public init(logger: Logger)
     {
-        self.replicant = replicant
+        self.replicant = ReplicantAsync(logger: logger)
         self.logger = logger
     }
     

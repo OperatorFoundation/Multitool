@@ -2,8 +2,6 @@
 //  {{toneburst.name}}.swift
 //
 //
-//  Created by Mafalda on 3/5/24.
-//
 
 import Foundation
 
@@ -15,7 +13,8 @@ import TransmissionAsync
 
 public enum {{toneburst.name}}Mode: String, Codable
 {
-    {% for mode in toneburst.modes %}case {{mode.name}}{% endfor %}
+    {% for mode in toneburst.modes %}case {{mode.name}}
+    {% endfor %}
 }
 
 public class {{toneburst.name}}: ToneBurstAsync, Codable
