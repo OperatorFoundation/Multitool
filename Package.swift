@@ -17,10 +17,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
-        .package(url: "https://github.com/apple/swift-log", from: "1.5.4"),
         .package(url: "https://github.com/stencilproject/Stencil.git", from: "0.15.1"),
         
-        .package(url: "https://github.com/OperatorFoundation/Antiphony", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Gardener", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Ghostwriter", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/OmniLanguage", branch: "main"),
@@ -36,7 +34,12 @@ let package = Package(
                 "Stencil",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
-            resources: [.copy("Templates/NOMNIConfig.txt"), .copy("Templates/Package.txt"), .copy("Templates/Toneburst.txt")]
+            resources: [
+                .copy("Templates/NOMNI.txt"),
+                .copy("Templates/NOMNIConfig.txt"),
+                .copy("Templates/NOMNIError.txt"),
+                .copy("Templates/Package.txt"),
+                .copy("Templates/Toneburst.txt")]
         ),
         
         .testTarget(name: "MultitoolTests",dependencies: [

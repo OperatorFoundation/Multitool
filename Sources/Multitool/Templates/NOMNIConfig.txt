@@ -9,7 +9,7 @@ import KeychainTypes
 
 public class NOMNIConfig
 {
-    public struct NOMNIServerConfig: Codable
+    public struct ServerConfig: Codable
     {
         public static let serverConfigFilename = "NOMNIServerConfig.json"
         public let serverAddress: String
@@ -46,7 +46,7 @@ public class NOMNIConfig
             let decoder = JSONDecoder()
             do
             {
-                let decoded = try decoder.decode(NOMNIServerConfig.self, from: data)
+                let decoded = try decoder.decode(ServerConfig.self, from: data)
                 
                 self = decoded
             }
@@ -94,7 +94,7 @@ public class NOMNIConfig
         }
     }
     
-    public struct NOMNIClientConfig: Codable, Equatable
+    public struct ClientConfig: Codable, Equatable
     {
         public static let clientConfigFilename = "NOMNIClientConfig.json"
         public let serverAddress: String
@@ -130,7 +130,7 @@ public class NOMNIConfig
             let decoder = JSONDecoder()
             do
             {
-                let decoded = try decoder.decode(NOMNIClientConfig.self, from: data)
+                let decoded = try decoder.decode(ClientConfig.self, from: data)
                 self = decoded
             }
             catch
@@ -177,13 +177,13 @@ public class NOMNIConfig
         }
     }
 
-    public static func generateNewConfigPair(serverAddress: String) throws -> (serverConfig: NOMNIServerConfig, clientConfig: NOMNIClientConfig)
+    public static func generateNewConfigPair(serverAddress: String) throws -> (serverConfig: ServerConfig, clientConfig: ClientConfig)
     {
         let privateKey = try PrivateKey(type: .P256KeyAgreement)
         let publicKey = privateKey.publicKey
 
-        let serverConfig = try NOMNIServerConfig(serverAddress: serverAddress, serverPrivateKey: privateKey)
-        let clientConfig = try NOMNIClientConfig(serverAddress: serverAddress, serverPublicKey: publicKey)
+        let serverConfig = try ServerConfig(serverAddress: serverAddress, serverPrivateKey: privateKey)
+        let clientConfig = try ClientConfig(serverAddress: serverAddress, serverPublicKey: publicKey)
         
         return (serverConfig, clientConfig)
     }
@@ -200,7 +200,7 @@ public class NOMNIConfig
         encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
         
         let serverJson = try encoder.encode(configPair.serverConfig)
-        let serverConfigFilePath = saveDirectory.appendingPathComponent(NOMNIServerConfig.serverConfigFilename).path
+        let serverConfigFilePath = saveDirectory.appendingPathComponent(ServerConfig.serverConfigFilename).path
         
         guard FileManager.default.createFile(atPath: serverConfigFilePath, contents: serverJson) else
         {
@@ -208,7 +208,7 @@ public class NOMNIConfig
         }
 
         let clientJson = try encoder.encode(configPair.clientConfig)
-        let clientConfigFilePath = saveDirectory.appendingPathComponent(NOMNIClientConfig.clientConfigFilename).path
+        let clientConfigFilePath = saveDirectory.appendingPathComponent(ClientConfig.clientConfigFilename).path
 
         guard FileManager.default.createFile(atPath: clientConfigFilePath, contents: clientJson) else
         {
