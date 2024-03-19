@@ -29,6 +29,7 @@ public class {{toneburst.name}}: ToneBurst
     public init(_ mode: {{toneburst.name}}Mode)
     {
         self.mode = mode
+        super.init()
     }
     
     required init(from decoder: any Decoder) throws
@@ -40,7 +41,7 @@ public class {{toneburst.name}}: ToneBurst
         try super.init(from: superDecoder)
     }
 
-    public func perform(connection: TransmissionAsync.AsyncConnection) async throws
+    public override func perform(connection: TransmissionAsync.AsyncConnection) async throws
     {
         let instance = {{toneburst.name}}Instance(self.mode, connection)
         try await instance.perform()
