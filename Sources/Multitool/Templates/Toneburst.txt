@@ -17,21 +17,41 @@ public enum {{toneburst.name}}Mode: String, Codable
     {% endfor %}
 }
 
-public class {{toneburst.name}}: ToneBurst, Codable
+public class {{toneburst.name}}: ToneBurst
 {
-    public var type: ReplicantSwift.ToneBurstType = .starburst
-    
     let mode: {{toneburst.name}}Mode
-
+    
+    enum CodingKeys: String, CodingKey
+    {
+        case mode
+    }
+    
     public init(_ mode: {{toneburst.name}}Mode)
     {
         self.mode = mode
+    }
+    
+    required init(from decoder: any Decoder) throws
+    {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let superDecoder = try container.superDecoder()
+        
+        self.mode = try container.decode({{toneburst.name}}Mode.self, forKey: .mode)
+        try super.init(from: superDecoder)
     }
 
     public func perform(connection: TransmissionAsync.AsyncConnection) async throws
     {
         let instance = {{toneburst.name}}Instance(self.mode, connection)
         try await instance.perform()
+    }
+    
+    public override func encode(to encoder: any Encoder) throws
+    {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.mode, forKey: .mode)
+        let superEncoder = container.superEncoder()
+        try super.encode(to: superEncoder)
     }
 }
 
@@ -57,52 +77,36 @@ public struct {{toneburst.name}}Instance
         }
     }
     
-    func listen(structuredText: StructuredText, maxSize: Int = 255, timeout: Duration = .seconds(60)) async throws -> MatchResult
+    func listen(structuredText: StructuredText, maxSize: Int = 255) async throws -> MatchResult
     {
-        let listenTask: Task<MatchResult?, Error> = Task {
-            var buffer = Data()
-            while buffer.count < maxSize
+        var buffer = Data()
+        while buffer.count < maxSize
+        {
+            let byte = try await connection.readSize(1)
+
+            buffer.append(byte)
+
+            guard let string = String(data: buffer, encoding: .utf8) else
             {
-                do {
-                    let byte = try await connection.readSize(1)
-                    
-                    buffer.append(byte)
-                    
-                    guard let string = String(data: buffer, encoding: .utf8) else
-                    {
-                        // This could fail because we're in the middle of a UTF8 rune.
-                        continue
-                    }
-                    
-                    do
-                    {
-                        return try structuredText.match(string: string)
-                    }
-                    catch
-                    {
-                        continue
-                    }
-                } catch {
-                    return nil
-                }
+                // This could fail because we're in the middle of a UTF8 rune.
+                continue
             }
-            
-            return nil
+
+            let result = structuredText.match(string: string)
+            switch result
+            {
+                case .FAILURE:
+                    return result
+
+                case .SHORT:
+                    continue
+
+                case .SUCCESS(_):
+                    return result
+            }
         }
         
-        let _ = Task {
-            try await Task.sleep(for: timeout)
-            listenTask.cancel()
-        }
-        
-        do {
-            guard let result = try await listenTask.value else {
-                throw StarburstError.readFailed
-            }
-            return result
-        } catch {
-            throw StarburstError.timeout
-        }
+        throw {{toneburst.name}}Error.maxSizeReached
     }
     
     func speak(structuredText: StructuredText) async throws
@@ -115,7 +119,7 @@ public struct {{toneburst.name}}Instance
         catch
         {
             print(error)
-            throw StarburstError.writeFailed
+            throw {{toneburst.name}}Error.writeFailed
         }
     }
     

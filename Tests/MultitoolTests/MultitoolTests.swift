@@ -41,7 +41,7 @@ final class MultitoolTests: XCTestCase
         print("Toneburst template found at: \(fileURL.path)")
     }
     
-    func testCreateModeFile() throws
+    func testCreateOmnitoneModeFile() throws
     {
         let swiftBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName)
         let pop3ServerFunction = try createPOP3ServerFunction()
@@ -67,30 +67,35 @@ final class MultitoolTests: XCTestCase
         let binding1 = Binding(value: .structuredText(StructuredText(
             .text("+OK POP3 server ready."), .newline(.crlf)
         )))
-        let refinement1 = Refinement(name: "timeout", value: .timeDuration(TimeDuration(resolution: .seconds, ticks: 5)))
-        let instance1 = EffectInstance(effect: effect1, binding: binding1, refinement: refinement1)
+        let listen1 = EffectInstance(effect: effect1, binding: binding1)
 
         let effect2 = GhostwriterSpeakEffect()
         let binding2 = Binding(value: .structuredText(StructuredText(
             .text("STLS"), .newline(.crlf)
         )))
-        let instance2 = EffectInstance(effect: effect2, binding: binding2)
+        let speak1 = EffectInstance(effect: effect2, binding: binding2)
 
         let effect3 = GhostwriterListenEffect()
         let binding3 = Binding(value: .structuredText(StructuredText(
             .text("+OK Begin TLS Negotiation"), .newline(.crlf)
         )))
-        let refinement3 = Refinement(name: "timeout", value: .timeDuration(TimeDuration(resolution: .seconds, ticks: 5)))
-        let instance3 = EffectInstance(effect: effect3, binding: binding3, refinement: refinement3)
+        let listen2 = EffectInstance(effect: effect3, binding: binding3)
+        
+        let effect4 = EndProgramEffect()
+        let end = EffectInstance(effect: effect4)
+        
+        let timeoutDuration = TimeDuration(resolution: .seconds, ticks: 5)
 
         let chain = EffectChain(
-            instance: instance1,
-            sequencer: Blocking(),
+            instance: listen1,
+            sequencer: Waiting(timeoutDuration),
             chain: EffectChain(
-                instance: instance2,
+                instance: speak1,
                 sequencer: Sequential(),
                 chain: EffectChain(
-                    instance: instance3
+                    instance: listen2,
+                    sequencer: Waiting(timeoutDuration),
+                    chain: EffectChain(instance: end)
                 )
             )
         )
@@ -116,29 +121,30 @@ final class MultitoolTests: XCTestCase
         let binding1 = Binding(value: .structuredText(StructuredText(
             .text("+OK POP3 server ready."), .newline(.crlf)
         )))
-        let instance1 = EffectInstance(effect: effect1, binding: binding1)
+        let speak1 = EffectInstance(effect: effect1, binding: binding1)
 
         let effect2 = GhostwriterListenEffect()
         let binding2 = Binding(value: .structuredText(StructuredText(
             .text("STLS"), .newline(.crlf)
         )))
-        let refinement = Refinement(name: "timeout", value: .timeDuration(TimeDuration(resolution: .seconds, ticks: 5)))
-        let instance2 = EffectInstance(effect: effect2, binding: binding2, refinement: refinement)
+        let listen1 = EffectInstance(effect: effect2, binding: binding2)
 
         let effect3 = GhostwriterSpeakEffect()
         let binding3 = Binding(value: .structuredText(StructuredText(
             .text("+OK Begin TLS Negotiation"), .newline(.crlf)
         )))
-        let instance3 = EffectInstance(effect: effect3, binding: binding3)
-
+        let speak2 = EffectInstance(effect: effect3, binding: binding3)
+        
+        let timeoutDuration = TimeDuration(resolution: .seconds, ticks: 5)
+        
         let chain = EffectChain(
-            instance: instance1,
+            instance: speak1,
             sequencer: Sequential(),
             chain: EffectChain(
-                instance: instance2,
-                sequencer: Blocking(),
+                instance: listen1,
+                sequencer: Waiting(timeoutDuration),
                 chain: EffectChain(
-                    instance: instance3
+                    instance: speak2
                 )
             )
         )
