@@ -26,7 +26,7 @@ struct NOMNIController
             return
         }
                         
-        let server = NOMNI(replicant: <#ReplicantAsync#>, logger: appLog)
+        let server = NOMNI(logger: appLog)
         let listener = try server.listen(config: serverConfig)
         let routingController = AsyncRoutingController()
                

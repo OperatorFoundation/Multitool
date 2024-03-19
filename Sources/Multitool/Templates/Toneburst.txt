@@ -17,7 +17,7 @@ public enum {{toneburst.name}}Mode: String, Codable
     {% endfor %}
 }
 
-public class {{toneburst.name}}: ToneBurstAsync, Codable
+public class {{toneburst.name}}: ToneBurst, Codable
 {
     public var type: ReplicantSwift.ToneBurstType = .starburst
     
