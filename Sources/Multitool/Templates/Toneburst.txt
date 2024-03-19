@@ -71,8 +71,7 @@ public struct {{toneburst.name}}Instance
     {
         switch mode
         {
-            {% for mode in toneburst.modes %}
-            case .{{mode.name}}:
+            {% for mode in toneburst.modes %}case .{{mode.name}}:
                 try await handle{{mode.name}}()
             {% endfor %}
         }
