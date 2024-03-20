@@ -135,8 +135,14 @@ struct SwiftTransportBuilder
     
     func addConfigFile(filename: String) throws
     {
-        let fileContents = try buildConfigFile()
         let filePath = sourcesDirectory.appendingPathComponent(filename, isDirectory: false).path
+        try addConfigFile(filePath: filePath)
+    }
+    
+    func addConfigFile(filePath: String) throws
+    {
+        let fileContents = try buildConfigFile()
+        
         guard FileManager.default.createFile(atPath: filePath, contents: fileContents.data) else
         {
             throw TransportBuilderError.failedToSaveFile(filePath: filePath)
