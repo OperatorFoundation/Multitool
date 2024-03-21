@@ -262,39 +262,56 @@ final class MultitoolTests: XCTestCase
         let speakBinding1 = Binding(value: .structuredText(StructuredText(TypedText.text("220 mail.imc.org SMTP service ready"), TypedText.newline(.crlf))))
         let speak1 = EffectInstance(effect: speakEffect1, binding: speakBinding1)
         //
+        
+        
+        
+        // TODO: Listen
         //        guard let firstServerListen = ListenTemplate(Template("EHLO $1\r\n"), patterns: [ExtractionPattern("^([a-zA-Z0-9.-]+)\r", .string)], maxSize: 253, maxTimeoutSeconds: 10) else {
         //            throw StarburstError.listenFailed
         //        }
         //
         //        _ = try await listen(template: firstServerListen)
-        //
-        //        // % 5 is mod, which divides by five, discards the result, then returns the remainder
-        //        let hour = Calendar.current.component(.hour, from: Date()) % 5
-        //        let welcome: String
-        //        switch hour
-        //        {
-        //            // These are all real SMTP welcome messages found in online examples of SMTP conversations.
-        //            case 0:
-        //                welcome = "offers a warm hug of welcome"
-        //            case 1:
-        //                welcome = "is my domain name."
-        //            case 2:
-        //                welcome = "I am glad to meet you"
-        //            case 3:
-        //                welcome = "says hello"
-        //            case 4:
-        //                welcome = "Hello"
-        //
-        //            default:
-        //                welcome = ""
-        //        }
-        //
+
+        
+        
+        // TODO: Speak
+        // % 5 is mod, which divides by five, discards the result, then returns the remainder
+        let hour = Calendar.current.component(.hour, from: Date()) % 5
+        let welcome: String
+        switch hour
+        {
+            // These are all real SMTP welcome messages found in online examples of SMTP conversations.
+            case 0:
+                welcome = "offers a warm hug of welcome"
+            case 1:
+                welcome = "is my domain name."
+            case 2:
+                welcome = "I am glad to meet you"
+            case 3:
+                welcome = "says hello"
+            case 4:
+                welcome = "Hello"
+
+            default:
+                welcome = ""
+        }
         //        try await speak(template: Template("250-$1 $2\r\n250-$3\r\n250-$4\r\n250 $5\r\n"), details: [Detail.string("mail.imc.org"), Detail.string(welcome), Detail.string("8BITMIME"), Detail.string("DSN"), Detail.string("STARTTLS")])
-        //
+        
+        
+        
+        
+        // TODO: Listen
         //        // FIXME: not sure about this size
         //        let _: String = try await listen(size: "STARTTLS\r\n".count + 1) // \r\n is counted as one on .count
-        //
+
+        
+        
+        
+        // TODO: Speak 
         //        try await speak(template: Template("220 $1\r\n"), details: [Detail.string("Go ahead")])
+
+        
+        
         
         let endEffect = EndProgramEffect()
         let end = EffectInstance(effect: endEffect)
