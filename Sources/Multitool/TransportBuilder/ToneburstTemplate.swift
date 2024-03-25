@@ -1,5 +1,5 @@
 //
-//  ToneburstMode.swift
+//  ToneburstTemplate.swift
 //
 //
 //  Created by Mafalda on 3/11/24.

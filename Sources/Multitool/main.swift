@@ -30,10 +30,19 @@ extension CommandLine
         
         @Option(name: .customLong("toneburst"), help: "The location of the pre-rendered Toneburst file.")
         var toneburstPath: String
+        
+        @Option(name: .customLong("serverMode"), help: "The mode to use for handling the toneburst server.")
+        var serverMode: String
+        
+        @Option(name: .customLong("clientMode"), help: "The mode to use for handling the toneburst client.")
+        var clientMode: String
+        
+        @Option(name: .customLong("toneburstName"), help: "The name of the toneburst.")
+        var toneburstName: String
 
         mutating public func run() throws
         {
-            let swiftBuilder = try SwiftTransportBuilder(saveDirectory: saveDirectory, transportName: name)
+            let swiftBuilder = try SwiftTransportBuilder(saveDirectory: saveDirectory, transportName: name, modes: [serverMode, clientMode], toneburstName: toneburstName)
             
             guard FileManager.default.fileExists(atPath: toneburstPath) else
             {
