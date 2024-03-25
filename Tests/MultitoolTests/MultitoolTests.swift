@@ -11,11 +11,13 @@ final class MultitoolTests: XCTestCase
 {
     let projectDirectory = FileManager.default.homeDirectoryForCurrentUser.appending(path: "CodeTesting", directoryHint: .isDirectory)
     let newTransportName = "Mycellium"
+    let modes = ["SMTPClient, SMTPServer"]
+    let newToneburstName = "Starburst"
     
     
     func testBuildConfig() throws
     {
-        let swiftBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName)
+        let swiftBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName, modes: modes, toneburstName: newToneburstName)
         let configContents = try swiftBuilder.buildConfigFile()
         print("Created a config file from a template: \n\(configContents)")
     }
@@ -43,7 +45,7 @@ final class MultitoolTests: XCTestCase
     
     func testCreateOmnitoneFile() throws
     {
-        let swiftBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName)
+        let swiftBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName, modes: modes, toneburstName: newToneburstName)
         let pop3ServerFunction = try createPOP3ServerFunction()
         print("pop3ServerFunction: \n \(pop3ServerFunction)")
         
@@ -165,7 +167,7 @@ final class MultitoolTests: XCTestCase
     {
         let newConfigFilePath = ""
         
-        let swiftTransportBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName)
+        let swiftTransportBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName, modes: modes, toneburstName: newToneburstName)
         try swiftTransportBuilder.addConfigFile(filePath: newConfigFilePath)
         
         print("Added a config file to: \(projectDirectory.path)")
@@ -173,7 +175,7 @@ final class MultitoolTests: XCTestCase
     
     func testCreateStarburstFile() throws
     {
-        let swiftBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName)
+        let swiftBuilder = try SwiftTransportBuilder(saveDirectory: projectDirectory.path, transportName: newTransportName, modes: ["SMTPServer, SMTPClient"], toneburstName: "Starburst")
         let smtpServerFunction = try createSMTPServerFunction()
         let smtpClientFunction = try createSMTPClientFunction()
         let smtpServerMode = ToneBurstMode(name: "SMTPServer", function: smtpServerFunction)
@@ -271,8 +273,9 @@ final class MultitoolTests: XCTestCase
         //        }
         //
         //        _ = try await listen(template: firstServerListen)
-
-        
+        let listenEffect1 = GhostwriterListenEffect()
+        let listenBinding1 = Binding(value: .structuredText(StructuredText(TypedText.text("EHLO "), TypedText.regexp("^([a-zA-Z0-9.-]+)$"), TypedText.newline(.crlf))))
+        let listen1 = EffectInstance(effect: listenEffect1, binding: listenBinding1)
         
         // TODO: Speak
         // % 5 is mod, which divides by five, discards the result, then returns the remainder
@@ -296,29 +299,52 @@ final class MultitoolTests: XCTestCase
                 welcome = ""
         }
         //        try await speak(template: Template("250-$1 $2\r\n250-$3\r\n250-$4\r\n250 $5\r\n"), details: [Detail.string("mail.imc.org"), Detail.string(welcome), Detail.string("8BITMIME"), Detail.string("DSN"), Detail.string("STARTTLS")])
-        
-        
-        
+        let speakEffect2 = GhostwriterSpeakEffect()
+        let speakBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("250 mail.imc.org "), TypedText.text(welcome.text), TypedText.newline(.crlf), TypedText.text("250-8BITMIME"), TypedText.newline(.crlf), TypedText.text("250-DSN"), TypedText.newline(.crlf), TypedText.text("250 STARTTLS"), TypedText.newline(.crlf))))
+        let speak2 = EffectInstance(effect: speakEffect2, binding: speakBinding2)
         
         // TODO: Listen
         //        // FIXME: not sure about this size
         //        let _: String = try await listen(size: "STARTTLS\r\n".count + 1) // \r\n is counted as one on .count
-
-        
-        
+        let listenEffect2 = GhostwriterListenEffect()
+        let listenBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("STARTTLS"), TypedText.newline(.crlf))))
+        let listen2 = EffectInstance(effect: listenEffect2, binding: listenBinding2)
         
         // TODO: Speak 
         //        try await speak(template: Template("220 $1\r\n"), details: [Detail.string("Go ahead")])
-
-        
-        
+        let speakEffect3 = GhostwriterSpeakEffect()
+        let speakBinding3 = Binding(value: .structuredText(StructuredText(TypedText.text("220 Go ahead"), TypedText.newline(.crlf))))
+        let speak3 = EffectInstance(effect: speakEffect3, binding: speakBinding3)
         
         let endEffect = EndProgramEffect()
         let end = EffectInstance(effect: endEffect)
         
         let timeoutDuration = TimeDuration(resolution: .seconds, ticks: 10)
         
-        let chain = EffectChain(instance: speak1, sequencer: Sequential(), chain: EffectChain(instance: end))
+//        let chain = EffectChain(instance: speak1, sequencer: Sequential(), chain: EffectChain(instance: end))
+        let chain = EffectChain(
+            instance: speak1,
+            sequencer: Sequential(),
+            chain:  EffectChain(
+                instance: listen1,
+                sequencer: Waiting(timeoutDuration),
+                chain: EffectChain(
+                    instance: speak2,
+                    sequencer: Sequential(),
+                    chain: EffectChain(
+                        instance: listen2,
+                        sequencer: Waiting(timeoutDuration),
+                        chain: EffectChain(
+                            instance: speak3,
+                            sequencer: Sequential(),
+                                chain: EffectChain(
+                                    instance: end
+                                )
+                            )
+                        )
+                    )
+                )
+            )
         
         let compiler = SwiftOmniCompiler()
         let result = try compiler.compile("SMTPServer", chain)
