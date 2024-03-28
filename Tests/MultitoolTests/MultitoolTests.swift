@@ -190,7 +190,7 @@ final class MultitoolTests: XCTestCase
     {
         // Listen
         let listenEffect1 = GhostwriterListenEffect()
-        let listenBinding1 = Binding(value: .structuredText(StructuredText(TypedText.text("220 "), TypedText.regexp("^([a-zA-Z0-9.-]+)"), TypedText.text(" SMTP service ready"), TypedText.newline(.crlf))
+        let listenBinding1 = Binding(value: .structuredText(StructuredText(TypedText.text("220 mail.imc.org SMTP service ready"), TypedText.newline(.crlf))
         ))
         let listen1 = EffectInstance(effect: listenEffect1, binding: listenBinding1)
 
@@ -202,7 +202,7 @@ final class MultitoolTests: XCTestCase
 
         // Listen
         let listenEffect2 = GhostwriterListenEffect()
-        let listenBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("250 mail.imc.org "), TypedText.text("offers a warm hug of welcome"), TypedText.newline(.crlf), TypedText.text("250-8BITMIME"), TypedText.newline(.crlf), TypedText.text("250-DSN"), TypedText.newline(.crlf), TypedText.text("250 STARTTLS"), TypedText.newline(.crlf))))
+        let listenBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("250-mail.imc.org "), TypedText.text("offers a warm hug of welcome"), TypedText.newline(.crlf), TypedText.text("250-8BITMIME"), TypedText.newline(.crlf), TypedText.text("250-DSN"), TypedText.newline(.crlf), TypedText.text("250-STARTTLS"), TypedText.newline(.crlf))))
         let listen2 = EffectInstance(effect: listenEffect2, binding: listenBinding2)
         
         // Speak
@@ -267,12 +267,12 @@ final class MultitoolTests: XCTestCase
         
         // Listen
         let listenEffect1 = GhostwriterListenEffect()
-        let listenBinding1 = Binding(value: .structuredText(StructuredText(TypedText.text("EHLO "), TypedText.regexp("^([a-zA-Z0-9.-]+)$"), TypedText.newline(.crlf))))
+        let listenBinding1 = Binding(value: .structuredText(StructuredText(TypedText.text("EHLO mail.imc.org"), TypedText.newline(.crlf))))
         let listen1 = EffectInstance(effect: listenEffect1, binding: listenBinding1)
         
         // Speak
         let speakEffect2 = GhostwriterSpeakEffect()
-        let speakBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("250 mail.imc.org "), TypedText.text("offers a warm hug of welcome"), TypedText.newline(.crlf), TypedText.text("250-8BITMIME"), TypedText.newline(.crlf), TypedText.text("250-DSN"), TypedText.newline(.crlf), TypedText.text("250 STARTTLS"), TypedText.newline(.crlf))))
+        let speakBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("250-mail.imc.org "), TypedText.text("offers a warm hug of welcome"), TypedText.newline(.crlf), TypedText.text("250-8BITMIME"), TypedText.newline(.crlf), TypedText.text("250-DSN"), TypedText.newline(.crlf), TypedText.text("250-STARTTLS"), TypedText.newline(.crlf))))
         let speak2 = EffectInstance(effect: speakEffect2, binding: speakBinding2)
         
         // Listen
@@ -318,7 +318,6 @@ final class MultitoolTests: XCTestCase
         let result = try compiler.compile("SMTPServer", chain)
         
         print(result.string)
-        
         return result.string
     }
 
