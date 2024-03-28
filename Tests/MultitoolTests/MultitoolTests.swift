@@ -319,9 +319,6 @@ final class MultitoolTests: XCTestCase
         
         print(result.string)
         
-        let spacing = chain.findSpacing()
-        print(chain.format(spacing: spacing))
-        
         return result.string
     }
 
