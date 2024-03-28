@@ -202,8 +202,7 @@ final class MultitoolTests: XCTestCase
 
         // Listen
         let listenEffect2 = GhostwriterListenEffect()
-        let listenBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("250 STARTTLS"), TypedText.newline(.crlf))
-        ))
+        let listenBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("250 mail.imc.org "), TypedText.text("offers a warm hug of welcome"), TypedText.newline(.crlf), TypedText.text("250-8BITMIME"), TypedText.newline(.crlf), TypedText.text("250-DSN"), TypedText.newline(.crlf), TypedText.text("250 STARTTLS"), TypedText.newline(.crlf))))
         let listen2 = EffectInstance(effect: listenEffect2, binding: listenBinding2)
         
         // Speak
@@ -214,7 +213,7 @@ final class MultitoolTests: XCTestCase
             
         // Listen
         let listenEffect3 = GhostwriterListenEffect()
-        let listenBinding3 = Binding(value: .structuredText(StructuredText(TypedText.regexp("^(.+)$"), TypedText.newline(.crlf))
+        let listenBinding3 = Binding(value: .structuredText(StructuredText(TypedText.text("220 Go ahead"), TypedText.newline(.crlf))
         ))
         let listen3 = EffectInstance(effect: listenEffect3, binding: listenBinding3)
 
@@ -259,59 +258,29 @@ final class MultitoolTests: XCTestCase
     {
 //        try await speak(template: Template("220 $1 SMTP service ready\r\n"), details: [Detail.string("mail.imc.org")])
         
-        // FIXME: Speak
+        // Speak
         let speakEffect1 = GhostwriterSpeakEffect()
         let speakBinding1 = Binding(value: .structuredText(StructuredText(TypedText.text("220 mail.imc.org SMTP service ready"), TypedText.newline(.crlf))))
         let speak1 = EffectInstance(effect: speakEffect1, binding: speakBinding1)
-        //
         
         
         
-        // TODO: Listen
-        //        guard let firstServerListen = ListenTemplate(Template("EHLO $1\r\n"), patterns: [ExtractionPattern("^([a-zA-Z0-9.-]+)\r", .string)], maxSize: 253, maxTimeoutSeconds: 10) else {
-        //            throw StarburstError.listenFailed
-        //        }
-        //
-        //        _ = try await listen(template: firstServerListen)
+        // Listen
         let listenEffect1 = GhostwriterListenEffect()
         let listenBinding1 = Binding(value: .structuredText(StructuredText(TypedText.text("EHLO "), TypedText.regexp("^([a-zA-Z0-9.-]+)$"), TypedText.newline(.crlf))))
         let listen1 = EffectInstance(effect: listenEffect1, binding: listenBinding1)
         
-        // TODO: Speak
-        // % 5 is mod, which divides by five, discards the result, then returns the remainder
-        let hour = Calendar.current.component(.hour, from: Date()) % 5
-        let welcome: String
-        switch hour
-        {
-            // These are all real SMTP welcome messages found in online examples of SMTP conversations.
-            case 0:
-                welcome = "offers a warm hug of welcome"
-            case 1:
-                welcome = "is my domain name."
-            case 2:
-                welcome = "I am glad to meet you"
-            case 3:
-                welcome = "says hello"
-            case 4:
-                welcome = "Hello"
-
-            default:
-                welcome = ""
-        }
-        //        try await speak(template: Template("250-$1 $2\r\n250-$3\r\n250-$4\r\n250 $5\r\n"), details: [Detail.string("mail.imc.org"), Detail.string(welcome), Detail.string("8BITMIME"), Detail.string("DSN"), Detail.string("STARTTLS")])
+        // Speak
         let speakEffect2 = GhostwriterSpeakEffect()
-        let speakBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("250 mail.imc.org "), TypedText.text(welcome.text), TypedText.newline(.crlf), TypedText.text("250-8BITMIME"), TypedText.newline(.crlf), TypedText.text("250-DSN"), TypedText.newline(.crlf), TypedText.text("250 STARTTLS"), TypedText.newline(.crlf))))
+        let speakBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("250 mail.imc.org "), TypedText.text("offers a warm hug of welcome"), TypedText.newline(.crlf), TypedText.text("250-8BITMIME"), TypedText.newline(.crlf), TypedText.text("250-DSN"), TypedText.newline(.crlf), TypedText.text("250 STARTTLS"), TypedText.newline(.crlf))))
         let speak2 = EffectInstance(effect: speakEffect2, binding: speakBinding2)
         
-        // TODO: Listen
-        //        // FIXME: not sure about this size
-        //        let _: String = try await listen(size: "STARTTLS\r\n".count + 1) // \r\n is counted as one on .count
+        // Listen
         let listenEffect2 = GhostwriterListenEffect()
         let listenBinding2 = Binding(value: .structuredText(StructuredText(TypedText.text("STARTTLS"), TypedText.newline(.crlf))))
         let listen2 = EffectInstance(effect: listenEffect2, binding: listenBinding2)
         
-        // TODO: Speak 
-        //        try await speak(template: Template("220 $1\r\n"), details: [Detail.string("Go ahead")])
+        // Speak
         let speakEffect3 = GhostwriterSpeakEffect()
         let speakBinding3 = Binding(value: .structuredText(StructuredText(TypedText.text("220 Go ahead"), TypedText.newline(.crlf))))
         let speak3 = EffectInstance(effect: speakEffect3, binding: speakBinding3)
@@ -321,7 +290,6 @@ final class MultitoolTests: XCTestCase
         
         let timeoutDuration = TimeDuration(resolution: .seconds, ticks: 10)
         
-//        let chain = EffectChain(instance: speak1, sequencer: Sequential(), chain: EffectChain(instance: end))
         let chain = EffectChain(
             instance: speak1,
             sequencer: Sequential(),
@@ -350,6 +318,10 @@ final class MultitoolTests: XCTestCase
         let result = try compiler.compile("SMTPServer", chain)
         
         print(result.string)
+        
+        let spacing = chain.findSpacing()
+        print(chain.format(spacing: spacing))
+        
         return result.string
     }
 
