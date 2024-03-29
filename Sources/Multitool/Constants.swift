@@ -40,6 +40,7 @@ struct Constants
 
 enum Templates: String
 {
+    case main
     case NOMNI
     case NOMNIConfig
     case NOMNIController

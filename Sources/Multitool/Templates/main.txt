@@ -1,0 +1,23 @@
+import OmniCompiler
+import OmniLanguage
+import Text
+
+{% for mode in modes %}
+func {{mode.name}}() throws -> EffectChain
+{
+    {{mode.omnicode}}
+}
+{% endfor %}
+
+let compiler = SwiftOmniCompiler()
+let results: MutableText = ""
+var chain = EffectChain()
+var result: Text = ""
+
+{% for mode in modes %}
+chain = {{mode.name}}()
+result = try compiler.compile("{{mode.name}}", chain)
+results.becomeAppended(result)
+{% endfor %}
+
+print(result.string)

@@ -1,0 +1,32 @@
+// swift-tools-version: 5.8
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let package = Package(
+    name: "{{name}}",
+    platforms: [
+        .macOS(.v13),
+        .iOS(.v15),
+    ],
+    products: [
+        .executable(
+            name: "{{name}}",
+            targets: ["{{name}}"]),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/OperatorFoundation/OmniCompiler", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/OmniLanguage", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Text", branch: "main"),
+    ],
+    targets: [
+        .excutableTarget(
+            name: "{{name}}",
+            dependencies: [
+                "OmniCompiler",
+                "OmniLanguage",
+                "Text",
+            ]),
+    ],
+    swiftLanguageVersions: [.v5]
+)
