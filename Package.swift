@@ -35,6 +35,8 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ],
             resources: [
+                .copy("Templates/main.txt"),
+                .copy("Templates/Package-main.txt"),
                 .copy("Templates/Transport.txt"),
                 .copy("Templates/NOMNIConfig.txt"),
                 .copy("Templates/NOMNIController.txt"),

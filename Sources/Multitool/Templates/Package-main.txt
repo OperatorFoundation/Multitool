@@ -1,4 +1,4 @@
-// swift-tools-version: 5.8
+// swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,8 +6,8 @@ import PackageDescription
 let package = Package(
     name: "{{name}}",
     platforms: [
-        .macOS(.v13),
-        .iOS(.v15),
+        .macOS(.v14),
+        .iOS(.v17),
     ],
     products: [
         .executable(
@@ -15,17 +15,22 @@ let package = Package(
             targets: ["{{name}}"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/OperatorFoundation/OmniCompiler", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Gardener", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Ghostwriter", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/OmniLanguage", branch: "main"),
         .package(url: "https://github.com/OperatorFoundation/Text", branch: "main"),
+        .package(url: "https://github.com/OperatorFoundation/Time", branch: "main"),
     ],
     targets: [
-        .excutableTarget(
+        .executableTarget(
             name: "{{name}}",
             dependencies: [
-                "OmniCompiler",
+                "Gardener",
+                "Ghostwriter",
+                .product(name: "OmniCompiler", package: "OmniLanguage"),
                 "OmniLanguage",
                 "Text",
+                "Time",
             ]),
     ],
     swiftLanguageVersions: [.v5]

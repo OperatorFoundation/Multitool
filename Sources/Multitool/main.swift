@@ -30,20 +30,9 @@ extension CommandLine
         
         @Option(name: .customLong("toneburst"), help: "The directory containing the Omni programs for generating the Toneburst file")
         var toneburstDirectory: String
-        
-        @Option(name: .customLong("serverMode"), help: "The mode to use for handling the toneburst server.")
-        var serverMode: String
-        
-        @Option(name: .customLong("clientMode"), help: "The mode to use for handling the toneburst client.")
-        var clientMode: String
-        
-        @Option(name: .customLong("toneburstName"), help: "The name of the toneburst.")
-        var toneburstName: String
 
         mutating public func run() throws
         {
-            let swiftBuilder = try SwiftTransportBuilder(saveDirectory: saveDirectory, transportName: name, modes: [serverMode, clientMode], toneburstName: toneburstName)
-            
             guard FileManager.default.fileExists(atPath: toneburstDirectory) else
             {
                 throw TransportBuilderError.failedToFindFile(filePath: toneburstDirectory)
@@ -51,7 +40,9 @@ extension CommandLine
             
             let toneburstURL = URL(fileURLWithPath: toneburstDirectory, isDirectory: false)
             
-            try swiftBuilder.buildNewTransport(toneburstFile: toneburstURL)
+            let swiftBuilder = try SwiftTransportBuilder(saveDirectory: saveDirectory, transportName: name, toneburstDirectory: toneburstURL)
+            
+            try swiftBuilder.buildNewTransport()
         }
 
     }

@@ -56,8 +56,8 @@ final class MultitoolTests: XCTestCase
         let pop3ClientMode = ToneBurstMode(name: "POP3Client", function: pop3ClientFunction)
         let newToneburst = ToneBurstTemplate(name: "Omnitone", modes: [pop3ClientMode, pop3ServerMode])
         
-        let newFilePath = try swiftBuilder.add(toneburst: newToneburst, saveDirectory: FileManager.default.homeDirectoryForCurrentUser)
-        print("Saved a new transport file to: \(newFilePath)")
+//        let newFilePath = try swiftBuilder.add(toneburst: newToneburst, saveDirectory: FileManager.default.homeDirectoryForCurrentUser)
+//        print("Saved a new transport file to: \(newFilePath)")
     }
     
     // An example of using OmniLanguage to create the code for a mode function
@@ -182,8 +182,8 @@ final class MultitoolTests: XCTestCase
         let smtpClientMode = ToneBurstMode(name: "SMTPClient", function: smtpClientFunction)
         let newToneburst = ToneBurstTemplate(name: "Starburst", modes: [smtpClientMode, smtpServerMode])
         
-        let newFilePath = try swiftBuilder.add(toneburst: newToneburst, saveDirectory: FileManager.default.homeDirectoryForCurrentUser)
-        print("Saved a new Starburst file to: \(newFilePath)")
+//        let newFilePath = try swiftBuilder.add(toneburst: newToneburst, saveDirectory: FileManager.default.homeDirectoryForCurrentUser)
+//        print("Saved a new Starburst file to: \(newFilePath)")
     }
     
     func createSMTPClientFunction() throws -> String

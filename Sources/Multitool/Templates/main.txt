@@ -1,6 +1,11 @@
+import Foundation
+
+import Gardener
+import Ghostwriter
 import OmniCompiler
 import OmniLanguage
 import Text
+import Time
 
 {% for mode in modes %}
 func {{mode.name}}() throws -> EffectChain
@@ -10,14 +15,16 @@ func {{mode.name}}() throws -> EffectChain
 {% endfor %}
 
 let compiler = SwiftOmniCompiler()
-let results: MutableText = ""
-var chain = EffectChain()
+
+let _ = File.makeDirectory(atPath: "{{directory}}")
+
+var chain = EffectChain(instance: EffectInstance(effect: EndProgramEffect()))
+var outputDirectory: URL
 var result: Text = ""
 
 {% for mode in modes %}
-chain = {{mode.name}}()
+chain = try {{mode.name}}()
 result = try compiler.compile("{{mode.name}}", chain)
-results.becomeAppended(result)
+outputDirectory = URL(fileURLWithPath: "{{directory}}").appendingPathComponent("{{mode.name}}.swift")
+try result.data.write(to: outputDirectory)
 {% endfor %}
-
-print(result.string)
