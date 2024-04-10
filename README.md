@@ -1,5 +1,5 @@
 # Multitool
-Multitool can build a transport directory with a given [Omni](https://github.com/OperatorFoundation/Omni) or [Starbridge](https://github.com/OperatorFoundation/Starbridge) toneburst.
+Multitool can build a Pluggable Transport project with a given [Omni](https://github.com/OperatorFoundation/Omni) or [Starbridge](https://github.com/OperatorFoundation/Starbridge) toneburst.
 
 Get toneburst files here: https://github.com/OperatorFoundation/Tonebursts
 
