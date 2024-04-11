@@ -14,7 +14,7 @@ struct CommandLine: ParsableCommand
 {
     static let configuration = CommandConfiguration(
         commandName: "multitool",
-        subcommands: [Transport.self, CLI.self]
+        subcommands: [Transport.self, CLI.self, Gardener.self]
     )
 }
 
@@ -44,7 +44,6 @@ extension CommandLine
             
             try swiftBuilder.buildNewTransport()
         }
-
     }
 }
 
@@ -52,6 +51,29 @@ extension CommandLine
 {
     struct CLI: ParsableCommand
     {
+    }
+}
+
+extension CommandLine
+{
+    struct Gardener: ParsableCommand
+    {
+        @Argument(help: "the name of the command to generate")
+        var command: String
+
+        @Option(name: .customLong("destination"), help: "destination directory for the new .swift file")
+        var saveDirectory: String
+
+        mutating public func run() throws
+        {
+            guard FileManager.default.fileExists(atPath: saveDirectory) else
+            {
+                throw TransportBuilderError.failedToFindFile(filePath: saveDirectory)
+            }
+
+            let swiftBuilder = try GardenerBuilder(saveDirectory: saveDirectory, command: command)
+            try swiftBuilder.build()
+        }
     }
 }
 

@@ -42,7 +42,10 @@ let package = Package(
                 .copy("Templates/NOMNIController.txt"),
                 .copy("Templates/NOMNIError.txt"),
                 .copy("Templates/Package.txt"),
-                .copy("Templates/Toneburst.txt")]
+                .copy("Templates/Toneburst.txt"),
+                .copy("Templates/Dockerfile.txt"),
+                .copy("Templates/GardenerCommand.txt")
+            ]
         ),
         
         .testTarget(name: "MultitoolTests",dependencies: [

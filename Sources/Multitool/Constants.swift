@@ -40,6 +40,8 @@ struct Constants
 
 enum Templates: String
 {
+    case Dockerfile
+    case GardenerCommand
     case main
     case NOMNI
     case NOMNIConfig

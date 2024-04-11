@@ -249,17 +249,11 @@ struct SwiftTransportBuilder
         try builder.buildNewToneburst()
                 
         print("🅾 Building Toneburst Generator...")
-        guard let _ = self.swift.build() else
-        {
-            throw SwiftTransportBuilderError.buildFailed
-        }
+        try self.swift.build()
         print("🅾 Built Toneburst Generator.")
         
         print("🅾 Running Toneburst Generator...")
-        guard let _ = self.swift.run() else
-        {
-            throw SwiftTransportBuilderError.runFailed
-        }
+        try self.swift.run()
         print("🅾 Ran Toneburst Generator.")
         
         guard let generatedToneburstModesFilenames = File.contentsOfDirectory(atPath: builder.outputDirectory.path) else
@@ -315,8 +309,6 @@ struct SwiftTransportBuilder
 
 public enum SwiftTransportBuilderError: Error
 {
-    case buildFailed
-    case runFailed
     case toneburstDirectoryDoesNotExist
 }
 
