@@ -1,0 +1,14 @@
+FROM swift:{{swiftVersion}}
+
+WORKDIR /root
+RUN git clone {{gitURL}}
+WORKDIR /root/{{projectName}}
+RUN git pull origin main
+RUN swift package reset
+RUN rm -rf Package.resolved .build .swiftpm
+RUN swift build
+
+EXPOSE {{port}}
+
+WORKDIR /root/{{projectName}}
+CMD ["swift", "run", {{projectName}}]

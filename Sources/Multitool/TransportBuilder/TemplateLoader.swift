@@ -21,6 +21,4 @@ class TemplateLoader: Loader
         let fileContents = try String(contentsOf: fileURL)
         return Template(templateString: fileContents, environment: environment)
     }
-    
-    
 }
